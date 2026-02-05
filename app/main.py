@@ -34,7 +34,7 @@ async def search_locations(
     radius: float = Query(1000, description="Search radius in meters"),
     db: db_dependency = None,
 ) -> List[Location]:
-    results = query_locations_within_radius(db, lat, lon, radius)
+    results = await query_locations_within_radius(db, lat, lon, radius)
     if not results:
         raise HTTPException(
             status_code=404, detail="No locations found within the specified radius"
@@ -42,7 +42,7 @@ async def search_locations(
     return results
 
 
-def query_locations_within_radius(
+async def query_locations_within_radius(
     db: Session, lat: float, lon: float, radius: float
 ) -> List[Location]:
     """

@@ -3,6 +3,9 @@ import requests
 import psycopg2
 import os
 
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://postgres:postgres@db:5432/locations_db"
+)
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 print(
@@ -10,9 +13,9 @@ print(
     if GOOGLE_API_KEY
     else "WARNING: GOOGLE_API_KEY not set!"
 )
-print(f"Connecting to: {os.getenv('DATABASE_URL')}")
+print(f"Connecting to: {DATABASE_URL}")
 
-conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+conn = psycopg2.connect(DATABASE_URL)
 cur = conn.cursor()
 
 
@@ -21,14 +24,17 @@ CSV_PATH = os.path.join(SCRIPT_DIR, "..", "transactions.csv")
 
 
 def reverse_geocode(lat, lon):
-    url = "https://maps.googleapis.com/maps/api/geocode/json"
-    res = requests.get(
-        url, params={"latlng": f"{lat},{lon}", "key": GOOGLE_API_KEY}
-    ).json()
+    try:
+        url = "https://maps.googleapis.com/maps/api/geocode/json"
+        res = requests.get(
+            url, params={"latlng": f"{lat},{lon}", "key": GOOGLE_API_KEY}, timeout=10
+        ).json()
 
-    if res["results"]:
-        print(res["results"][0]["formatted_address"])
-        return res["results"][0]["formatted_address"]
+        if res.get("results"):
+            print(res["results"][0]["formatted_address"])
+            return res["results"][0]["formatted_address"]
+    except requests.exceptions.RequestException as e:
+        print(f"Warning: Could not geocode ({lat}, {lon}): {e}")
     return None
 
 

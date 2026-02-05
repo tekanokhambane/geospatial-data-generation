@@ -1,0 +1,7 @@
+venv
+app/__pycache__/__init__.cpython-310.pyc
+app/__pycache__/database.cpython-310.pyc
+app/__pycache__/main.cpython-310.pyc
+app/__pycache__/models.cpython-310.pyc
+scripts/test_db.py
+.env
